@@ -5,11 +5,14 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 
 public class PleaseCheese extends Game {
 
@@ -18,6 +21,10 @@ public class PleaseCheese extends Game {
 	private BaseActor cheese;
 	private BaseActor floor;
 	private BaseActor winText;
+
+	private boolean win;
+	private Action spinShrinkFadeOut;
+	private Action fadeInColorCycleForever;
 
 	@Override
 	public void create () {
@@ -28,6 +35,33 @@ public class PleaseCheese extends Game {
 		cheese = createActor("cheese.png", 400, 300);
 		mousey = createActor("mouse.png", 20, 20);
 		winText = createActor("you-win.png", 170, 60, false);
+
+		win = false;
+
+		createActions();
+
+	}
+
+	private void createActions() {
+
+		spinShrinkFadeOut = Actions.parallel(
+				Actions.alpha(1),
+				Actions.rotateBy(360, 1),
+				Actions.scaleTo(0, 0, 1),
+				Actions.fadeOut(1)
+		);
+
+		fadeInColorCycleForever = Actions.sequence(
+				Actions.alpha(0),
+				Actions.show(),
+				Actions.fadeIn(2),
+				Actions.forever(
+						Actions.sequence(
+								Actions.color(new Color(1, 0, 0, 1), 1),
+								Actions.color(new Color(1, 0, 1, 1), 1)
+						)
+				)
+		);
 
 	}
 
@@ -43,6 +77,7 @@ public class PleaseCheese extends Game {
 		));
 		actor.setPosition(x,y);
 		actor.setVisible(visible);
+		actor.setOrigin(actor.getWidth() / 2, actor.getHeight() / 2);
 		mainStage.addActor(actor);
 
 		return actor;
@@ -65,10 +100,11 @@ public class PleaseCheese extends Game {
 
 		Rectangle cheeseRect = cheese.getBoundingRectangle();
 		Rectangle mouseyRect = mousey.getBoundingRectangle();
-
-
-		if (cheeseRect.contains(mouseyRect)) {
-			winText.setVisible(true);
+		if (!win && cheeseRect.contains(mouseyRect)) {
+			//winText.setVisible(true);
+			win = true;
+			cheese.addAction(spinShrinkFadeOut);
+			winText.addAction(fadeInColorCycleForever);
 		}
 
 		Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);

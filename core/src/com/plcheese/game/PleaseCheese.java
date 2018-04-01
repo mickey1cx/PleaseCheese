@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -25,6 +26,7 @@ public class PleaseCheese extends Game {
 	private BaseActor cheese;
 	private BaseActor floor;
 	private BaseActor winText;
+	private float velocity = 100.0f;
 
 	private boolean win;
 	private Action spinShrinkFadeOut;
@@ -124,10 +126,22 @@ public class PleaseCheese extends Game {
 		mousey.velocityY = 0;
 		mousey.velocityX = 0;
 
-		if (Gdx.input.isKeyPressed(Keys.LEFT)) mousey.velocityX -= 100;
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)) mousey.velocityX += 100;
-		if (Gdx.input.isKeyPressed(Keys.UP)) mousey.velocityY += 100;
-		if (Gdx.input.isKeyPressed(Keys.DOWN)) mousey.velocityY -= 100;
+		if (Gdx.input.isKeyPressed(Keys.LEFT)) mousey.velocityX -= velocity;
+		if (Gdx.input.isKeyPressed(Keys.RIGHT)) mousey.velocityX += velocity;
+		if (Gdx.input.isKeyPressed(Keys.UP)) mousey.velocityY += velocity;
+		if (Gdx.input.isKeyPressed(Keys.DOWN)) mousey.velocityY -= velocity;
+
+		if (Gdx.input.isTouched()) {
+
+			float dx = Gdx.input.getX() - (mousey.getX() + mousey.getOriginX());
+			float dy = (Gdx.graphics.getHeight() - Gdx.input.getY()) - (mousey.getY() + mousey.getOriginY());
+			float angle = MathUtils.atan2(dy, dx);
+
+
+			mousey.velocityY += velocity * MathUtils.sin(angle);
+			mousey.velocityX += velocity * MathUtils.cos(angle);
+
+		}
 
 		float dt = Gdx.graphics.getDeltaTime();
 		mainStage.act(dt);

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -17,11 +18,15 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Array;
 
 public class PleaseCheese extends Game {
 
 	public Stage mainStage;
+	private Stage uiStage;
+
 	private AnimatedActor mousey;
 	private BaseActor cheese;
 	private BaseActor floor;
@@ -34,21 +39,35 @@ public class PleaseCheese extends Game {
 
 	private Animation mouseAnim;
 
+	private float timeElapsed;
+	private Label timeLabel;
+
 	@Override
 	public void create () {
 
 		mainStage = new Stage();
+		uiStage = new Stage();
 
 		initActions();
 		initAnimation();
 
-		floor = createActor("tiles.jpg", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2);
-		cheese = createActor("cheese.png", 400, 300);
+		floor = createActor(mainStage,"tiles.jpg", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2);
+		cheese = createActor(mainStage,"cheese.png", 400, 300);
 		mousey = createAnimetedActor(mouseAnim, 20, 20);
-		winText = createActor("you-win.png", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2, false);
+		winText = createActor(uiStage,"you-win.png", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2, false);
 
 		win = false;
 
+		timeElapsed = 0;
+
+		BitmapFont font = new BitmapFont();
+		String text = "Time 0";
+		LabelStyle style = new LabelStyle(font, Color.NAVY);
+		timeLabel = new Label(text, style);
+		timeLabel.setFontScale(2);
+		timeLabel.setPosition(500, 400);
+
+		uiStage.addActor(timeLabel);
 
 	}
 
@@ -89,11 +108,11 @@ public class PleaseCheese extends Game {
 
 	}
 
-	private BaseActor createActor(String pathToTexture, float x, float y) {
-		return createActor(pathToTexture, x, y, true);
+	private BaseActor createActor(Stage stage, String pathToTexture, float x, float y) {
+		return createActor(stage, pathToTexture, x, y, true);
 	}
 
-	private BaseActor createActor(String pathToTexture, float x, float y, boolean visible) {
+	private BaseActor createActor(Stage stage, String pathToTexture, float x, float y, boolean visible) {
 
 		BaseActor actor = new BaseActor();
 		actor.setTexture(new Texture(
@@ -102,7 +121,7 @@ public class PleaseCheese extends Game {
 		actor.setOrigin(actor.getWidth() / 2, actor.getHeight() / 2);
 		actor.setPosition(x - actor.getOriginX(),y - actor.getOriginY());
 		actor.setVisible(visible);
-		mainStage.addActor(actor);
+		stage.addActor(actor);
 
 		return actor;
 
@@ -145,6 +164,7 @@ public class PleaseCheese extends Game {
 
 		float dt = Gdx.graphics.getDeltaTime();
 		mainStage.act(dt);
+		uiStage.act(dt);
 
 		Rectangle cheeseRect = cheese.getBoundingRectangle();
 		Rectangle mouseyRect = mousey.getBoundingRectangle();
@@ -155,10 +175,18 @@ public class PleaseCheese extends Game {
 			winText.addAction(fadeInColorCycleForever);
 		}
 
-		Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
+		if(!win) {
+			timeElapsed += dt;
+			timeLabel.setText("Time: " + (int) timeElapsed);
+		}
+
+
+
+			Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		mainStage.draw();
+		uiStage.draw();
 
 	}
 	

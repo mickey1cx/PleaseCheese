@@ -5,6 +5,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,6 +24,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.utils.Array;
 
 public class PleaseCheese extends Game {
+
+	final int mapWidth = 1000;
+	final int mapHeight = 1000;
+
+	final int viewWidth = 480;
+	final int viewHeight = 320;
 
 	public Stage mainStage;
 	private Stage uiStage;
@@ -51,8 +58,8 @@ public class PleaseCheese extends Game {
 		initActions();
 		initAnimation();
 
-		floor = createActor(mainStage,"tiles.jpg", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2);
-		cheese = createActor(mainStage,"cheese.png", 400, 300);
+		floor = createActor(mainStage,"tiles.jpg", 500, 500);
+		cheese = createActor(mainStage,"cheese.png", MathUtils.random(100, 900), MathUtils.random(100, 900));
 		mousey = createAnimetedActor(mouseAnim, 20, 20);
 		winText = createActor(uiStage,"you-win.png", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2, false);
 
@@ -65,7 +72,7 @@ public class PleaseCheese extends Game {
 		LabelStyle style = new LabelStyle(font, Color.NAVY);
 		timeLabel = new Label(text, style);
 		timeLabel.setFontScale(2);
-		timeLabel.setPosition(500, 400);
+		timeLabel.setPosition(4, Gdx.graphics.getHeight() - 24);
 
 		uiStage.addActor(timeLabel);
 
@@ -166,6 +173,16 @@ public class PleaseCheese extends Game {
 		mainStage.act(dt);
 		uiStage.act(dt);
 
+//		if (mousey.getX() < 0) mousey.setX(0);
+//		else if (mousey.getX() > mapWidth - mousey.getWidth()) mousey.setX(mapWidth - mousey.getWidth());
+		mousey.setX(MathUtils.clamp(mousey.getX(), 0, mapWidth - mousey.getWidth()));
+//
+//		if (mousey.getY() < 0) mousey.setY(0);
+//		else if (mousey.getY() > mapHeight - mousey.getHeight()) mousey.setY(mapHeight - mousey.getHeight());
+		mousey.setY(MathUtils.clamp(mousey.getY(), 0, mapHeight - mousey.getHeight()));
+
+
+
 		Rectangle cheeseRect = cheese.getBoundingRectangle();
 		Rectangle mouseyRect = mousey.getBoundingRectangle();
 		if (!win && cheeseRect.contains(mouseyRect)) {
@@ -184,6 +201,12 @@ public class PleaseCheese extends Game {
 
 			Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+		Camera cam = mainStage.getCamera();
+		cam.position.set(mousey.getX() + mousey.getOriginY(), mousey.getY() + mousey.getOriginY(), 0);
+		cam.position.x = MathUtils.clamp(cam.position.x, viewWidth / 2, mapWidth - viewWidth / 2);
+		cam.position.y = MathUtils.clamp(cam.position.y, viewHeight / 2, mapWidth - viewHeight / 2);
+		cam.update();
 
 		mainStage.draw();
 		uiStage.draw();

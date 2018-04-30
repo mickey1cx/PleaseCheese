@@ -15,25 +15,18 @@ import com.badlogic.gdx.utils.Align;
 
 import static com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 
-public class CheeseMenu implements Screen {
-
-    private Game game;
-    private Stage uiStage;
+public class CheeseMenu extends BaseScreen {
 
     public CheeseMenu(Game game) {
 
-        this.game = game;
-        init();
+        super(game);
 
     }
 
-    private void init() {
-
-        uiStage = new Stage();
+    protected void init() {
 
         BaseActor title = ActorManger.createActor(uiStage, "menu_logo.png",
                 Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() /2);
-
 
         BitmapFont font = new BitmapFont();
         font.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -59,24 +52,23 @@ public class CheeseMenu implements Screen {
 
     }
 
-
-    @Override
-    public void show() {
-
-    }
-
-    @Override
-    public void render(float delta) {
+    public boolean keyDown(int keycode) {
 
         if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isTouched())
             game.setScreen(new CheeseLevel(game));
 
-        uiStage.act();
+        return false;
 
-        Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    }
 
-        uiStage.draw();
+    @Override
+    protected void update(float delta) {
+
+    }
+
+
+    @Override
+    public void show() {
 
     }
 

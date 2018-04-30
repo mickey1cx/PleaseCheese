@@ -7,8 +7,8 @@ import com.plcheese.game.PleaseCheese;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 480;
-		config.height = 320;
+		config.width = 640;
+		config.height = 480;
 		new LwjglApplication(new PleaseCheese(), config);
 	}
 }
